@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "EasyEntry",
+  "version": "0.1.0",
+  "description": "Simplify your job application process in Japan.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "EasyEntry - Auto-fill Job Applications",
+    "default_icon": "icon.svg"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://job.rikunabi.com/*",
+        "https://www.rikunabi.com/*",
+        "https://rikunabi.com/*",
+        "https://*.rikunabi.com/*",
+        "https://example-job-site.com/application/*"
+      ],
+      "js": ["content-script.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://localhost:3000/*",
+        "https://your-production-domain.com/*"
+      ],
+      "js": ["webapp-content-script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "host_permissions": [
+    "https://*.firebaseio.com/*",
+    "https://*.googleapis.com/*",
+    "https://*.googleapi.com/*",
+    "https://identitytoolkit.googleapis.com/*",
+    "https://securetoken.googleapis.com/*",
+    "https://*.firebaseapp.com/*",
+    "https://*.firestore.googleapis.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16": "icon.svg",
+    "48": "icon.svg",
+    "128": "icon.svg"
+  }
+} 

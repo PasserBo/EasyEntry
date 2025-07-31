@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,7 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +20,24 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   }, [user, router]);
+
+  // Add debugging for window message events
+  useEffect(() => {
+    const messageListener = (event: MessageEvent) => {
+      if (event.data.type === "EASYENTRY_EXTENSION_READY") {
+        console.log("🔌 Web App: EasyEntry extension detected and ready:", event.data);
+      } else if (event.data.type === "EASYENTRY_TEST_MESSAGE") {
+        console.log("🧪 Web App: Received test message from extension:", event.data);
+      }
+    };
+
+    window.addEventListener('message', messageListener);
+    console.log("👂 Web App: Listening for extension messages");
+
+    return () => {
+      window.removeEventListener('message', messageListener);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,11 +50,40 @@ export default function LoginPage() {
     try {
       setError('');
       setLoading(true);
-      await login(email, password);
+      
+      console.log("🔐 Web App: Attempting login...");
+      // Use Firebase auth directly to get user credentials
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // ---- SEND USER DATA TO EXTENSION ----
+      console.log("✅ Web App: Login successful! Broadcasting user data to extension...");
+      
+      const loginMessage = { 
+        type: "LOGIN_SUCCESS",
+        payload: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName,
+          // Add any other data the extension might need
+        },
+        timestamp: Date.now()
+      };
+      
+      console.log("📢 Web App: Posting message with user data:", loginMessage);
+      window.postMessage(loginMessage, "*");
+      
+      // Wait a moment to ensure message is processed
+      setTimeout(() => {
+        console.log("📢 Web App: Re-broadcasting login message (backup)");
+        window.postMessage(loginMessage, "*");
+      }, 500);
+      // ---- END OF USER DATA BROADCAST ----
+      
+      console.log("🎯 Web App: Redirecting to dashboard...");
       router.push('/dashboard');
     } catch (error) {
+      console.error("❌ Web App: Login failed:", error);
       setError('Failed to log in. Please check your credentials.');
-      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }

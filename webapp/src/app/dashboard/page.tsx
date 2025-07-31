@@ -13,6 +13,15 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       await logout();
+      
+      // ---- NOTIFY EXTENSION OF LOGOUT ----
+      console.log("🚪 Web App: User logged out, broadcasting to extension");
+      window.postMessage({ 
+        type: "LOGOUT_SUCCESS",
+        timestamp: Date.now()
+      }, "*");
+      // ---- END OF LOGOUT BROADCAST ----
+      
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);

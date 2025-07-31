@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "EasyEntry TEST",
+  "version": "0.1.0",
+  "description": "Test version to debug loading issues",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "action": {
+    "default_title": "EasyEntry Test Extension"
+  },
+  "background": {
+    "service_worker": "test-background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://localhost:3000/*"
+      ],
+      "js": ["test-content-script.js"],
+      "run_at": "document_end"
+    }
+  ]
+} 
