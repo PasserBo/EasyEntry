@@ -68,6 +68,13 @@ export default function HomePage() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
+              href="/demo-application"
+              className="inline-flex items-center px-8 py-3 border border-blue-300 text-base font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+            >
+              Try Demo Application
+              <FileText className="ml-2 h-5 w-5" />
+            </Link>
+            <Link
               href="/login"
               className="inline-flex items-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
             >
@@ -109,6 +116,26 @@ export default function HomePage() {
                 in the right fields every time.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Demo Section */}
+        <div className="mt-20">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg p-8 text-center text-white">
+            <h2 className="text-2xl font-bold mb-4">
+              Try EasyEntry with Our Demo Application
+            </h2>
+            <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+              Experience how EasyEntry works by filling out our realistic demo job application. 
+              It's perfect for testing the auto-fill functionality and learning how to use the system.
+            </p>
+            <Link
+              href="/demo-application"
+              className="inline-flex items-center px-6 py-3 border border-white text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 transition-colors"
+            >
+              Open Demo Application
+              <FileText className="ml-2 h-5 w-5" />
+            </Link>
           </div>
         </div>
 

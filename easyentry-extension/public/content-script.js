@@ -1,4 +1,6 @@
-console.log("EasyEntry content script loaded.");
+console.log("EasyEntry content script loaded on:", window.location.href);
+console.log("Hostname:", window.location.hostname.toLowerCase());
+console.log("Pathname:", window.location.pathname.toLowerCase());
 
 // Helper function to safely set input values
 function setInputValue(selector, value) {
@@ -68,8 +70,8 @@ function fillRikunabiForm(data) {
     const firstName = nameParts.slice(1).join(' ') || '';
     
     // Common field selectors for Japanese job sites
-    if (setInputValue('input[name*="sei"], input[name*="lastName"], #shimei_sei_id', lastName)) filledFields++;
-    if (setInputValue('input[name*="mei"], input[name*="firstName"], #shimei_mei_id', firstName)) filledFields++;
+    if (setInputValue('input[name*="nmSei"], input[name*="lastName"], #shimei_sei_id', lastName)) filledFields++;
+    if (setInputValue('input[name*="nmMei"], input[name*="firstName"], #shimei_mei_id', firstName)) filledFields++;
     
     // Furigana (phonetic reading)
     if (personalInfo.furiganaName) {
@@ -77,8 +79,8 @@ function fillRikunabiForm(data) {
       const lastNameFurigana = furiganaParts[0] || '';
       const firstNameFurigana = furiganaParts.slice(1).join(' ') || '';
       
-      if (setInputValue('input[name*="seiKana"], input[name*="lastNameKana"]', lastNameFurigana)) filledFields++;
-      if (setInputValue('input[name*="meiKana"], input[name*="firstNameKana"]', firstNameFurigana)) filledFields++;
+      if (setInputValue('input[name*="nmSeiKana"], input[name*="lastNameKana"]', lastNameFurigana)) filledFields++;
+      if (setInputValue('input[name*="nmMeiKana"], input[name*="firstNameKana"]', firstNameFurigana)) filledFields++;
     }
     
     // Email
@@ -175,6 +177,81 @@ function fillRikunabiForm(data) {
   return filledFields;
 }
 
+// Demo application form filling adapter
+function fillDemoApplicationForm(data) {
+  console.log("Filling demo application form with data:", data);
+  let filledFields = 0;
+  
+  const { personalInfo, education, workExperience, jikoPR } = data;
+  
+  // Personal Information
+  if (personalInfo) {
+    // Split full name into first and last name
+    const nameParts = personalInfo.fullName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    if (setInputValue('input[name="firstName"]', firstName)) filledFields++;
+    if (setInputValue('input[name="lastName"]', lastName)) filledFields++;
+    if (setInputValue('input[name="email"]', personalInfo.email)) filledFields++;
+    if (setInputValue('input[name="phone"]', personalInfo.phoneNumber)) filledFields++;
+    
+    // Address fields
+    if (personalInfo.address) {
+      if (setInputValue('input[name="address"]', personalInfo.address.streetAddress)) filledFields++;
+      if (setInputValue('input[name="city"]', personalInfo.address.city)) filledFields++;
+      if (setInputValue('input[name="state"]', personalInfo.address.prefecture)) filledFields++;
+    }
+  }
+  
+  // Education
+  if (education) {
+    const eduData = Array.isArray(education) ? education[0] : education;
+    
+    if (setInputValue('input[name="university"]', eduData.school)) filledFields++;
+    if (setInputValue('input[name="major"]', eduData.faculty || eduData.degree)) filledFields++;
+    if (selectDropdown('select[name="degree"]', eduData.degree)) filledFields++;
+    if (setInputValue('input[name="graduationDate"]', eduData.endDate)) filledFields++;
+  }
+  
+  // Work Experience
+  if (workExperience) {
+    const workData = Array.isArray(workExperience) ? workExperience[0] : workExperience;
+    
+    if (setInputValue('input[name="currentCompany"]', workData.company)) filledFields++;
+    if (setInputValue('input[name="currentPosition"]', workData.position)) filledFields++;
+    if (setInputValue('input[name="workStartDate"]', workData.startDate)) filledFields++;
+    if (workData.endDate && workData.endDate !== 'Present') {
+      if (setInputValue('input[name="workEndDate"]', workData.endDate)) filledFields++;
+    }
+    if (setInputValue('textarea[name="responsibilities"]', workData.description)) filledFields++;
+  }
+  
+  // Skills (if available in qualificationOrSkill data)
+  if (data.qualificationOrSkill) {
+    const skills = Array.isArray(data.qualificationOrSkill) ? 
+      data.qualificationOrSkill.map(skill => skill.name).join(', ') : 
+      data.qualificationOrSkill.name;
+    if (setInputValue('textarea[name="skills"]', skills)) filledFields++;
+  }
+  
+  // Cover Letter / Self Promotion
+  if (jikoPR) {
+    const prData = Array.isArray(jikoPR) ? jikoPR[0] : jikoPR;
+    if (setInputValue('textarea[name="coverLetter"]', prData.content)) filledFields++;
+  }
+  
+  // Additional fields that could be filled if available in personalInfo
+  if (personalInfo) {
+    // These would need to be added to the profile data structure if needed
+    // For now, we'll leave them for manual entry
+    // if (setInputValue('input[name="linkedinUrl"]', personalInfo.linkedinUrl)) filledFields++;
+    // if (setInputValue('input[name="portfolioUrl"]', personalInfo.portfolioUrl)) filledFields++;
+  }
+  
+  return filledFields;
+}
+
 // Generic form filling adapter (fallback)
 function fillGenericForm(data) {
   console.log("Filling generic form with data:", data);
@@ -199,6 +276,7 @@ function fillGenericForm(data) {
 
 // Main message listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("Content script received message:", request.type, "on", window.location.href);
   if (request.type === "FILL_FORM") {
     console.log("Received data to fill:", request.data);
     
@@ -207,9 +285,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       
       // Detect which site we're on and use appropriate adapter
       const hostname = window.location.hostname.toLowerCase();
+      const pathname = window.location.pathname.toLowerCase();
       
-      if (hostname.includes('rikunabi')) {
+      if (hostname.includes('rikunabi') || hostname.includes('recruit.co.jp')) {
         filledFields = fillRikunabiForm(request.data);
+      } else if (hostname === 'localhost' && pathname.includes('/demo-application')) {
+        filledFields = fillDemoApplicationForm(request.data);
       } else {
         filledFields = fillGenericForm(request.data);
       }

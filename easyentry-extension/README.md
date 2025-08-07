@@ -35,7 +35,7 @@ A Chrome extension that simplifies job application processes in Japan by auto-fi
 
 ## Supported Websites
 
-- **Rikunabi** (`rikunabi.com`) - Full support for personal info, education, work experience, and self-promotion sections
+- **Rikunabi** (`rikunabi.com`, `point.recruit.co.jp`) - Full support for personal info, education, work experience, and self-promotion sections
 - **Generic Forms** - Basic support for email and name fields on other websites
 
 ## Prerequisites

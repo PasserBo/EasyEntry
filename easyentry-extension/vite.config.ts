@@ -10,13 +10,27 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+        sidepanel: resolve(__dirname, 'src/sidepanel.tsx'),
       },
       output: {
-        entryFileNames: 'assets/[name].js',
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'sidepanel') {
+            return 'assets/sidepanel.js';
+          }
+          return 'assets/[name].js';
+        },
         chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]'
+        assetFileNames: (assetInfo) => {
+          // Ensure CSS files have consistent naming
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'assets/[name].[ext]';
+          }
+          return 'assets/[name].[ext]';
+        }
       }
     },
+    // Ensure CSS is extracted
+    cssCodeSplit: false,
     outDir: 'dist',
     assetsDir: 'assets',
   },

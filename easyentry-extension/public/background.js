@@ -18,6 +18,17 @@ const setIconToInactive = () => {
   }
 };
 
+// --- SIDE PANEL SETUP ---
+const setupSidePanel = () => {
+  if (chrome.sidePanel) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+      .then(() => console.log("✅ Background: Side panel behavior set successfully"))
+      .catch((error) => console.error("❌ Background: Error setting side panel behavior:", error));
+  } else {
+    console.log("⚠️ Background: Side Panel API not available");
+  }
+};
+
 // --- SESSION MANAGEMENT ---
 // On message, handle login/logout events.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -102,20 +113,27 @@ const initializeIconState = () => {
   });
 };
 
+// Initialize extension when browser starts
+const initializeExtension = () => {
+  console.log("🔧 Background: Initializing EasyEntry extension");
+  setupSidePanel();
+  initializeIconState();
+};
+
 // Check initial login state when the browser starts
 chrome.runtime.onStartup.addListener(() => {
   console.log("🔄 Background: Extension startup event");
-  initializeIconState();
+  initializeExtension();
 });
 
 // Also check on install/update
 chrome.runtime.onInstalled.addListener(() => {
   console.log("📦 Background: Extension installed/updated");
-  initializeIconState();
+  initializeExtension();
 });
 
 // Initialize immediately if APIs are available
 if (chrome.runtime && chrome.storage) {
   console.log("🚀 Background: APIs available, initializing immediately");
-  initializeIconState();
+  initializeExtension();
 } 

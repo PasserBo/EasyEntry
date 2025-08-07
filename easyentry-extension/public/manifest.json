@@ -6,14 +6,17 @@
   "permissions": [
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "sidePanel"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "index.html",
     "default_title": "EasyEntry - Auto-fill Job Applications"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   },
   "content_scripts": [
     {
@@ -22,18 +25,26 @@
         "https://www.rikunabi.com/*",
         "https://rikunabi.com/*",
         "https://*.rikunabi.com/*",
-        "https://example-job-site.com/application/*"
+        "https://point.recruit.co.jp/*",
+        "https://*.recruit.co.jp/*",
+        "*://point.recruit.co.jp/*",
+        "*://*.recruit.co.jp/*"
       ],
       "js": ["content-script.js"],
       "run_at": "document_end"
     },
     {
       "matches": [
-        "http://localhost:3000/*",
-        "https://localhost:3000/*",
+        "http://localhost:3000/*"
+      ],
+      "js": ["content-script.js","webapp-content-script.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
         "https://your-production-domain.com/*"
       ],
-      "js": ["webapp-content-script.js"],
+      "js": ["content-script.js"],
       "run_at": "document_end"
     }
   ],
