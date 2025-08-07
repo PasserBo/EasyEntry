@@ -59,8 +59,8 @@ function App() {
   }, []);
 
   const handleLogin = () => {
-    // Open your website's login page in a new tab
-    chrome.tabs.create({ url: 'http://localhost:3000/login' });
+    // Open your website's dashboard in a new tab (will redirect to login if needed)
+    chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
   };
 
   const handleLogout = () => {

@@ -46,13 +46,22 @@ window.addEventListener("message", (event) => {
   }
 });
 
-// Optional: Let the web app know the extension is installed
-console.log("📢 Content Script: Announcing extension presence to web app");
-window.postMessage({ 
-  type: "EASYENTRY_EXTENSION_READY",
-  version: "0.1.0",
-  timestamp: Date.now()
-}, "*");
+// Let the web app know the extension is installed and request current state
+const announcePresence = () => {
+  console.log("📢 Content Script: Announcing extension presence to web app");
+  window.postMessage({ 
+    type: "EASYENTRY_EXTENSION_READY",
+    version: "0.1.0",
+    timestamp: Date.now()
+  }, "*");
+};
+
+// Initial announcement
+announcePresence();
+
+// Announce again after a delay to catch already-loaded pages
+setTimeout(announcePresence, 1000);
+setTimeout(announcePresence, 3000);
 
 // Test message sending capabilities
 console.log("🧪 Content Script: Testing message posting to window");

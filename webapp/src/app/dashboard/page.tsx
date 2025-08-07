@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -10,6 +11,42 @@ import ProfileContainer from '@/components/ProfileContainer';
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
+
+  // Listen for extension announcements and respond with current user state
+  useEffect(() => {
+    const handleExtensionMessage = (event: MessageEvent) => {
+      if (event.data.type === "EASYENTRY_EXTENSION_READY") {
+        console.log("📢 Web App: Extension announced its presence, broadcasting current user state");
+        
+        if (user) {
+          const loginMessage = { 
+            type: "LOGIN_SUCCESS",
+            payload: {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+            },
+            timestamp: Date.now()
+          };
+          
+          console.log("📤 Web App: Broadcasting current user to extension:", loginMessage);
+          window.postMessage(loginMessage, "*");
+        } else {
+          console.log("📤 Web App: No user logged in, sending logout state to extension");
+          window.postMessage({ 
+            type: "LOGOUT_SUCCESS",
+            timestamp: Date.now()
+          }, "*");
+        }
+      }
+    };
+
+    window.addEventListener("message", handleExtensionMessage);
+    
+    return () => {
+      window.removeEventListener("message", handleExtensionMessage);
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {

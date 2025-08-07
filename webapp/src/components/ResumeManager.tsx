@@ -130,7 +130,7 @@ export default function ResumeManager() {
                   {resumes.map((resume) => (
                     <div
                       key={resume.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                      className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all duration-200"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">

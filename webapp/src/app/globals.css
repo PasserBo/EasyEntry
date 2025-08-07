@@ -35,10 +35,10 @@ body {
   background-color: #f1f5f9 !important; /* Slightly darker light gray */
 }
 
-/* Input styling with reduced contrast */
-input:not([class*="text-"]), 
-textarea:not([class*="text-"]), 
-select:not([class*="text-"]) {
+/* Input styling with reduced contrast - only for inputs without explicit text colors */
+input:not(.text-gray-900):not(.text-white):not(.text-black), 
+textarea:not(.text-gray-900):not(.text-white):not(.text-black), 
+select:not(.text-gray-900):not(.text-white):not(.text-black) {
   color: #374151; /* Gray-700 for good contrast */
   background-color: #ffffff; /* Pure white for input fields to maintain readability */
   border-color: #d1d5db; /* Lighter border */
@@ -65,17 +65,17 @@ select:not([class*="text-"]) {
     background-color: #0f172a !important; /* Dark blue-gray */
   }
   
-  /* Dark mode inputs */
-  input:not([class*="text-"]), 
-  textarea:not([class*="text-"]), 
-  select:not([class*="text-"]) {
+  /* Dark mode inputs - only for inputs without explicit text colors */
+  input:not(.text-gray-900):not(.text-white):not(.text-black), 
+  textarea:not(.text-gray-900):not(.text-white):not(.text-black), 
+  select:not(.text-gray-900):not(.text-white):not(.text-black) {
     color: #f1f5f9; /* Light gray text */
     background-color: #334155; /* Medium gray background */
     border-color: #475569; /* Lighter border in dark mode */
   }
   
-  /* Ensure labels are visible in dark mode */
-  label:not([class*="text-"]) {
+  /* Ensure labels are visible in dark mode - only for labels without explicit text colors */
+  label:not(.text-gray-700):not(.text-gray-900):not(.text-white):not(.text-black):not(.sr-only) {
     color: #e2e8f0 !important;
   }
   
@@ -130,6 +130,16 @@ select:not([class*="text-"]) {
   color: #a1a1aa !important; /* Slightly lighter */
 }
 
+/* Ensure login/signup forms have excellent contrast */
+.text-gray-900 {
+  color: #111827 !important; /* Darker for better contrast */
+}
+
+/* Ensure placeholders are visible but not too dark */
+input::placeholder, textarea::placeholder {
+  color: #9ca3af; /* Medium gray for placeholders */
+}
+
 /* Dark mode gradient adjustments */
 @media (prefers-color-scheme: dark) {
   .bg-gradient-to-br {
@@ -146,5 +156,15 @@ select:not([class*="text-"]) {
   
   .bg-blue-50 {
     background-color: #1e3a8a !important;
+  }
+  
+  /* Dark mode login/signup form adjustments */
+  .text-gray-900 {
+    color: #f9fafb !important; /* Light text in dark mode */
+  }
+  
+  /* Dark mode placeholders */
+  input::placeholder, textarea::placeholder {
+    color: #6b7280; /* Darker gray for dark mode placeholders */
   }
 }
